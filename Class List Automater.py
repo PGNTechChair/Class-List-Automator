@@ -6,6 +6,24 @@ from openpyxl import load_workbook
 from openpyxl.styles import NamedStyle, Font, Border, Side, PatternFill, Alignment
 
 
+def filter_columns(question_df):
+    '''
+    Filter out irrelevant columns in the dataframe
+
+    @parameter question_df: The Dataframe gathered from the questionnaire
+
+    @return questtion_df: Same dataframe except filtered
+    '''
+
+    for col in question_df.columns:
+        
+        if "[" in col.lower() and "]" in col.lower():
+
+            question_df.drop(col, inplace=True, axis=1)
+
+
+    return question_df
+
 def get_names(question_df):
     '''
     Get Names of People in PGN 
@@ -46,7 +64,7 @@ def get_classes(name_list, question_df):
 
     for col in question_df.columns:
 
-        if "class" in col.lower():
+        if "class #" in col.lower():
             
             class_df[col] = question_df[col]
 
@@ -55,8 +73,8 @@ def get_classes(name_list, question_df):
     name_dict = {}
 
     for i, name in enumerate(name_list):
-        name_dict[name] = [class_df.loc[i,"Class #1:"], class_df.loc[i,"Class #2:"], class_df.loc[i,"Class #3:"],\
-        class_df.loc[i,"Class #4:"], class_df.loc[i,"Class #5:"], class_df.loc[i,"Class #6:"]]
+        name_dict[name] = [class_df.loc[i,"Class #1"], class_df.loc[i,"Class #2"], class_df.loc[i,"Class #3"],\
+        class_df.loc[i,"Class #4"], class_df.loc[i,"Class #5"], class_df.loc[i,"Class #6"]]
     
     #print(name_dict)
 
@@ -111,6 +129,7 @@ def get_classes(name_list, question_df):
                 #submit an extra space if one doesn't exist
                 if " " not in val:
                     char = 0
+
                     while val[char].isalpha():
 
                         char += 1
@@ -202,6 +221,12 @@ if __name__ == "__main__":
     input_file = input("Enter the Questionnaire File Name: ")
 
     question_df = pd.read_csv(input_file)
+
+    #Filter out irrelevant columns
+    question_df = filter_columns(question_df)
+
+    for col in question_df:
+        print(col)
 
     #Get names from our questionnaire
     name_list = get_names(question_df)
